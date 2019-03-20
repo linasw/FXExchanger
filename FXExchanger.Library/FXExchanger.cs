@@ -1,20 +1,25 @@
-﻿using FXExchange.Library;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace FXExchange.Library
 {
     public class FXExchanger
     {
-        public static Dictionary<string, decimal> _DKK100Rates
+        public Dictionary<string, decimal> _DKK100Rates
         {
             get
             {
-                return Get100DKKRates();
+                return _currencyProvider.Get100DKKRates();
             }
         }
+        private ICurrencyProvider _currencyProvider;
 
-        public static decimal Exchange(string currencyPair, decimal amount)
+        public FXExchanger(ICurrencyProvider currencyProvider)
+        {
+            _currencyProvider = currencyProvider;
+        }
+
+        public decimal Exchange(string currencyPair, decimal amount)
         {
             string main = currencyPair.Substring(0, 3);
             string money = currencyPair.Substring(4, 3);
@@ -32,7 +37,7 @@ namespace FXExchange.Library
             return Exchange(main, money, amount);
         }
 
-        private static decimal Exchange(string main, string money, decimal amount)
+        private decimal Exchange(string main, string money, decimal amount)
         {
             if (main.Equals(money))
             {
@@ -60,7 +65,7 @@ namespace FXExchange.Library
             return decimal.Round(toReturn, 6);
         }
 
-        private static Dictionary<string, decimal> Get100DKKRates()
+        private Dictionary<string, decimal> Get100DKKRates()
         {
             Dictionary<string, decimal> temp = new Dictionary<string, decimal>();
             temp.Add("EUR", 743.94M);

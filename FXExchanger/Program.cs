@@ -1,11 +1,11 @@
-﻿using System;
-using FXExchange.Library;
+﻿using FXExchange.Library;
+using System;
 
 namespace FXExchange
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (args.Length != 2)
             {
@@ -25,16 +25,18 @@ namespace FXExchange
                 return;
             }
 
+            FXExchanger exchanger = new FXExchanger(new CurrencyProvider());
+
             try
             {
-                var result = FXExchanger.Exchange(args[0], amount);
+                var result = exchanger.Exchange(args[0], amount);
                 Console.WriteLine(result.ToString());
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            
+
             return;
         }
     }

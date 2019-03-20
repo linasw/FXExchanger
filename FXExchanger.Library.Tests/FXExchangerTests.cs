@@ -1,6 +1,4 @@
-﻿using FXExchange.Library;
-using NUnit.Framework;
-using System;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace FXExchange.Library.Tests
@@ -8,12 +6,19 @@ namespace FXExchange.Library.Tests
     [TestFixture]
     public class FXExchangerTests
     {
+        private readonly FXExchanger _exchanger;
+
+        public FXExchangerTests()
+        {
+            _exchanger = new FXExchanger(new CurrencyProvider());
+        }
+
         [Test]
         public void Exchanger_WhenMainAndMoneyAreEqual_ReturnsPassedAmount(
             [Values("EUR/EUR", "DKK/DKK", "JPY/JPY")] string currencyPair,
             [Values(98.87, 12.754, 50.0)] decimal amount)
         {
-            decimal exhangedAmount = FXExchanger.Exchange(currencyPair, amount);
+            decimal exhangedAmount = _exchanger.Exchange(currencyPair, amount);
             Assert.AreEqual(exhangedAmount, amount);
         }
 
@@ -23,7 +28,7 @@ namespace FXExchange.Library.Tests
             [Values(98.87)] decimal amount)
         {
             string money = currencyPair.Substring(4, 3);
-            var exception = Assert.Throws<CurrencyDoesNotExistException>(() => FXExchanger.Exchange(currencyPair, amount));
+            var exception = Assert.Throws<CurrencyDoesNotExistException>(() => _exchanger.Exchange(currencyPair, amount));
             Assert.That(exception.Message, Is.EqualTo($"Currency of type {money} does not exist!"));
         }
 
@@ -33,7 +38,7 @@ namespace FXExchange.Library.Tests
             [Values(98.87)] decimal amount)
         {
             string main = currencyPair.Substring(0, 3);
-            var exception = Assert.Throws<CurrencyDoesNotExistException>(() => FXExchanger.Exchange(currencyPair, amount));
+            var exception = Assert.Throws<CurrencyDoesNotExistException>(() => _exchanger.Exchange(currencyPair, amount));
             Assert.That(exception.Message, Is.EqualTo($"Currency of type {main} does not exist!"));
         }
 
@@ -43,9 +48,9 @@ namespace FXExchange.Library.Tests
             [Values(100)] decimal amount)
         {
             string main = currencyPair.Substring(0, 3);
-            Dictionary<string, decimal> rates = FXExchanger._DKK100Rates;
+            Dictionary<string, decimal> rates = _exchanger._DKK100Rates;
 
-            var result = FXExchanger.Exchange(currencyPair, amount);
+            var result = _exchanger.Exchange(currencyPair, amount);
 
             Assert.AreEqual(result, rates.GetValueOrDefault(main));
         }
@@ -58,7 +63,7 @@ namespace FXExchange.Library.Tests
         public decimal Exchanger_WhenMoneyDKKAndAmountAny_ReturnsExchangedCurrency(
             string currencyPair, decimal amount)
         {
-            return FXExchanger.Exchange(currencyPair, amount);
+            return _exchanger.Exchange(currencyPair, amount);
         }
 
         [TestCase("DKK/EUR", 100, ExpectedResult = 0.001344)]
@@ -69,7 +74,7 @@ namespace FXExchange.Library.Tests
         public decimal Exchanger_WhenMainDKKAndAmountAny_ReturnsExchangedCurrency(
             string currencyPair, decimal amount)
         {
-            return FXExchanger.Exchange(currencyPair, amount);
+            return _exchanger.Exchange(currencyPair, amount);
         }
 
         [TestCase("EUR/USD", 100, ExpectedResult = 112.189531)]
@@ -78,7 +83,7 @@ namespace FXExchange.Library.Tests
         public decimal Exchanger_WhenMainNotDKKAndMoneyNotDKKAndAmountAny_ReturnsExchangedCurrency(
             string currencyPair, decimal amount)
         {
-            return FXExchanger.Exchange(currencyPair, amount);
+            return _exchanger.Exchange(currencyPair, amount);
         }
     }
 }
