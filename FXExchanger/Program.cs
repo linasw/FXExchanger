@@ -7,29 +7,32 @@ namespace FXExchange
     {
         private static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length != 2 && args.Length != 3)
             {
                 Console.WriteLine("Usage: FXExchange <currency pair> <amount to change>");
                 return;
             }
 
-            if (args[0].Length != 7)
-            {
-                Console.WriteLine("<currency pair> length should be 7 (e.g. USD/EUR)");
-                return;
-            }
-
-            if (!Decimal.TryParse(args[1], out decimal amount) || (amount <= 0))
+            if (!Decimal.TryParse(args[args.Length - 1], out decimal amount) || (amount <= 0))
             {
                 Console.WriteLine("<amount to change> should be a positive number");
                 return;
             }
 
-            FXExchanger exchanger = new FXExchanger(new CurrencyProvider());
+            FXExchanger exchanger = new FXExchanger(new CurrencyProvider(), new ArgumentParser());
 
             try
             {
-                var result = exchanger.Exchange(args[0], amount);
+                decimal result;
+                if (args.Length == 2)
+                {
+                    result = exchanger.Exchange(args[0], amount);
+                }
+                else
+                {
+                    result = exchanger.Exchange(args[0], args[1], amount);
+                }
+
                 Console.WriteLine(result.ToString());
             }
             catch (Exception ex)

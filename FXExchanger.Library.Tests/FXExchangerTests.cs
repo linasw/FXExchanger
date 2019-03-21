@@ -10,7 +10,7 @@ namespace FXExchange.Library.Tests
 
         public FXExchangerTests()
         {
-            _exchanger = new FXExchanger(new CurrencyProvider());
+            _exchanger = new FXExchanger(new CurrencyProvider(), new ArgumentParser());
         }
 
         [Test]
@@ -84,6 +84,14 @@ namespace FXExchange.Library.Tests
             string currencyPair, decimal amount)
         {
             return _exchanger.Exchange(currencyPair, amount);
+        }
+
+        [Test]
+        public void Exchanger_WhenGivenToMuchOrToLessCurrencies_ReturnsInvalidCurrencyPairException(
+            [Values("DKK/EUR/USD", "DKK", "WHAT IS THIS")]string currencyPair, [Values(100)]decimal amount)
+        {
+            var exception = Assert.Throws<InvalidCurrencyPairException>(() => _exchanger.Exchange(currencyPair, amount));
+            Assert.That(exception.Message, Is.EqualTo("<currency pair> should incluse two currencies"));
         }
     }
 }

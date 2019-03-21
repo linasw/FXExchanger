@@ -5,6 +5,16 @@ namespace FXExchange.Library
 {
     public class FXExchanger
     {
+        private IArgumentParser _argumentParser;
+
+        private ICurrencyProvider _currencyProvider;
+
+        public FXExchanger(ICurrencyProvider currencyProvider, IArgumentParser argumentParser)
+        {
+            _currencyProvider = currencyProvider;
+            _argumentParser = argumentParser;
+        }
+
         public Dictionary<string, decimal> _DKK100Rates
         {
             get
@@ -12,33 +22,18 @@ namespace FXExchange.Library
                 return _currencyProvider.Get100DKKRates();
             }
         }
-        private ICurrencyProvider _currencyProvider;
-
-        public FXExchanger(ICurrencyProvider currencyProvider)
-        {
-            _currencyProvider = currencyProvider;
-        }
 
         public decimal Exchange(string currencyPair, decimal amount)
         {
-            string main = currencyPair.Substring(0, 3);
-            string money = currencyPair.Substring(4, 3);
-
-            if (!(_DKK100Rates.ContainsKey(main)))
-            {
-                throw new CurrencyDoesNotExistException($"Currency of type {main} does not exist!");
-            }
-
-            if (!(_DKK100Rates.ContainsKey(money)))
-            {
-                throw new CurrencyDoesNotExistException($"Currency of type {money} does not exist!");
-            }
+            (string main, string money) = _argumentParser.ParseCurrencyPair(currencyPair);
 
             return Exchange(main, money, amount);
         }
 
-        private decimal Exchange(string main, string money, decimal amount)
+        public decimal Exchange(string main, string money, decimal amount)
         {
+            CurrencyExists(main, money);
+
             if (main.Equals(money))
             {
                 return amount;
@@ -65,19 +60,17 @@ namespace FXExchange.Library
             return decimal.Round(toReturn, 6);
         }
 
-        private Dictionary<string, decimal> Get100DKKRates()
+        private void CurrencyExists(string main, string money)
         {
-            Dictionary<string, decimal> temp = new Dictionary<string, decimal>();
-            temp.Add("EUR", 743.94M);
-            temp.Add("USD", 663.11M);
-            temp.Add("GBP", 852.85M);
-            temp.Add("SEK", 76.10M);
-            temp.Add("NOK", 78.40M);
-            temp.Add("CHF", 683.58M);
-            temp.Add("JPY", 5.9740M);
-            temp.Add("DKK", 100.00M);
+            if (!(_DKK100Rates.ContainsKey(main)))
+            {
+                throw new CurrencyDoesNotExistException($"Currency of type {main} does not exist!");
+            }
 
-            return temp;
+            if (!(_DKK100Rates.ContainsKey(money)))
+            {
+                throw new CurrencyDoesNotExistException($"Currency of type {money} does not exist!");
+            }
         }
     }
 }
