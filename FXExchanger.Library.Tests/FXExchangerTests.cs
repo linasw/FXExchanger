@@ -7,10 +7,12 @@ namespace FXExchange.Library.Tests
     public class FXExchangerTests
     {
         private readonly FXExchanger _exchanger;
+        private readonly ArgumentParser _argumentParser;
 
         public FXExchangerTests()
         {
             _exchanger = new FXExchanger(new CurrencyProvider(), new ArgumentParser());
+            _argumentParser = new ArgumentParser();
         }
 
         [Test]
@@ -66,24 +68,36 @@ namespace FXExchange.Library.Tests
             return _exchanger.Exchange(currencyPair, amount);
         }
 
-        [TestCase("DKK/EUR", 100, ExpectedResult = 0.001344)]
-        [TestCase("DKK/USD", 50, ExpectedResult = 0.000754)]
-        [TestCase("DKK/GBP", 25, ExpectedResult = 0.000293)]
-        [TestCase("DKK/SEK", 10, ExpectedResult = 0.001314)]
-        [TestCase("DKK/DKK", 8, ExpectedResult = 8)]
-        public decimal Exchanger_WhenMainDKKAndAmountAny_ReturnsExchangedCurrency(
+        [TestCase("DKK/EUR", 100)]
+        [TestCase("DKK/USD", 50)]
+        [TestCase("DKK/GBP", 25)]
+        [TestCase("DKK/SEK", 10)]
+        [TestCase("DKK/DKK", 8)]
+        public void Exchanger_WhenMainDKKAndAmountAny_ReturnsExchangedCurrency(
             string currencyPair, decimal amount)
         {
-            return _exchanger.Exchange(currencyPair, amount);
+            var rates = _exchanger._DKK100Rates;
+            (string main, string money) = _argumentParser.ParseCurrencyPair(currencyPair);
+
+            var expectedResult = (rates.GetValueOrDefault(main) / rates.GetValueOrDefault(money)) * amount;
+            var actualResult = _exchanger.Exchange(currencyPair, amount);
+
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
-        [TestCase("EUR/USD", 100, ExpectedResult = 112.189531)]
-        [TestCase("USD/EUR", 50, ExpectedResult = 44.567438)]
-        [TestCase("GBP/JPY", 170, ExpectedResult = 24269.250084)]
-        public decimal Exchanger_WhenMainNotDKKAndMoneyNotDKKAndAmountAny_ReturnsExchangedCurrency(
+        [TestCase("EUR/USD", 100)]
+        [TestCase("USD/EUR", 50)]
+        [TestCase("GBP/JPY", 170)]
+        public void Exchanger_WhenMainNotDKKAndMoneyNotDKKAndAmountAny_ReturnsExchangedCurrency(
             string currencyPair, decimal amount)
         {
-            return _exchanger.Exchange(currencyPair, amount);
+            var rates = _exchanger._DKK100Rates;
+            (string main, string money) = _argumentParser.ParseCurrencyPair(currencyPair);
+
+            var expectedResult = (rates.GetValueOrDefault(main) / rates.GetValueOrDefault(money)) * amount;
+            var actualResult = _exchanger.Exchange(currencyPair, amount);
+
+            Assert.AreEqual(expectedResult, actualResult);
         }
 
         [Test]
@@ -91,7 +105,7 @@ namespace FXExchange.Library.Tests
             [Values("DKK/EUR/USD", "DKK", "WHAT IS THIS")]string currencyPair, [Values(100)]decimal amount)
         {
             var exception = Assert.Throws<InvalidCurrencyPairException>(() => _exchanger.Exchange(currencyPair, amount));
-            Assert.That(exception.Message, Is.EqualTo("<currency pair> should incluse two currencies"));
+            Assert.That(exception.Message, Is.EqualTo("<currency pair> should include two currencies"));
         }
     }
 }

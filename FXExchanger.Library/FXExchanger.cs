@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FXExchange.Library
 {
@@ -39,25 +38,12 @@ namespace FXExchange.Library
                 return amount;
             }
 
-            if (money.Equals("DKK"))
-            {
-                var calculatedAmount = _DKK100Rates.GetValueOrDefault(main) * (amount / 100);
-                return decimal.Round(calculatedAmount, 6);
-            }
-
-            if (main.Equals("DKK"))
-            {
-                var valueOfMoney = _DKK100Rates.GetValueOrDefault(money);
-                var calculatedAmount = Decimal.Divide(1, valueOfMoney) * (amount / 100);
-                return decimal.Round(calculatedAmount, 6);
-            }
-
             var mainToDKK = _DKK100Rates.GetValueOrDefault(main);
             var moneyToDKK = _DKK100Rates.GetValueOrDefault(money);
             var mainMoneyRate = mainToDKK / moneyToDKK;
             var toReturn = mainMoneyRate * amount;
 
-            return decimal.Round(toReturn, 6);
+            return toReturn;
         }
 
         private void CurrencyExists(string main, string money)

@@ -9,7 +9,7 @@ namespace FXExchange.Library
             var splits = Regex.Split(currencyPair, @"\W+");
             if (splits.Length != 2)
             {
-                throw new InvalidCurrencyPairException("<currency pair> should incluse two currencies");
+                throw new InvalidCurrencyPairException("<currency pair> should include two currencies");
             }
             return (splits[0], splits[1]);
         }
