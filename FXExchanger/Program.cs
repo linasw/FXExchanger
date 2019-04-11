@@ -13,20 +13,20 @@ namespace FXExchange
                 return;
             }
 
-            if (!Decimal.TryParse(args[args.Length - 1], out decimal amount) || (amount <= 0))
-            {
-                Console.WriteLine("<amount to change> should be a positive number");
-                return;
-            }
-
-            FXExchanger exchanger = new FXExchanger(new CurrencyProvider(), new ArgumentParser());
+            FXExchanger exchanger = new FXExchanger(new DictionaryCurrencyProvider());
+            ArgumentParser argumentParser = new ArgumentParser();
 
             try
             {
-                decimal result;
+                decimal result, amount;
+                string main, money;
+
+                amount = argumentParser.ParseAmount(args[1]);
+
                 if (args.Length == 2)
                 {
-                    result = exchanger.Exchange(args[0], amount);
+                    (main, money) = argumentParser.ParseCurrencyPair(args[0]);
+                    result = exchanger.Exchange(main, money, amount);
                 }
                 else
                 {

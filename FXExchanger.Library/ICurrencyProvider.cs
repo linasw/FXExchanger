@@ -4,6 +4,7 @@ namespace FXExchange.Library
 {
     public interface ICurrencyProvider
     {
-        Dictionary<string, decimal> Get100DKKRates();
+        decimal GetRate(string currency);
+        void CurrencyExists(string curreny);
     }
 }
